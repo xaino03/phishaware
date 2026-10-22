@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Training · PhishAware{% endblock %}
+{% block content %}
+<section class="hero"><p class="eyebrow">SECURITY AWARENESS</p><h1>Practice spotting suspicious messages.</h1><p>Review each fictional email and decide whether it looks suspicious or legitimate. You’ll see an explanation after you answer.</p></section>
+<section class="scenario-list"><h2>Training scenarios</h2>{% for s in scenarios %}<article class="scenario-card"><div><span class="label">EXERCISE {{ loop.index }}</span><h3>{{ s.subject }}</h3><p>From: {{ s.sender }}</p></div><a class="button" href="{{ url_for('exercise', scenario_id=s.id) }}">Start exercise</a></article>{% endfor %}</section>
+{% endblock %}
