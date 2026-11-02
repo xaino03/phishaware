@@ -4,14 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PhishAware{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('style_css') }}">
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="{{ url_for('index') }}">PhishAware</a><nav><a href="{{ url_for('index') }}">Training</a><a href="{{ url_for('admin') }}">Results</a></nav></header>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">PhishAware</a>
+    <nav>
+      <a href="{{ url_for('index') }}">Training</a>
+      <a href="{{ url_for('scanner') }}">URL Scanner</a>
+      <a href="{{ url_for('admin') }}">Results</a>
+    </nav>
+  </header>
   <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p class="notice {{ category }}">{{ message }}</p>{% endfor %}{% endif %}{% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for category, message in messages %}
+        <p class="notice {{ category }}">{{ message }}</p>
+      {% endfor %}{% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer>Local training demo · Fictional scenarios · No emails or credentials are collected</footer>
+  <footer>Local training demo · Links are not opened · No passwords are collected</footer>
 </body>
 </html>
