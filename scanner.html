@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Safe Scanner · PhishAware{% endblock %}
+{% block content %}
+<section class="hero"><p class="eyebrow">LOCAL URL TRIAGE</p><h1>Review a suspicious link or message.</h1><p>Paste a URL or message to see static warning signs. Nothing is sent to another service, and links are never opened.</p></section>
+<section class="scanner-card"><label for="scan-input">URL or message text</label><textarea id="scan-input" maxlength="20000" placeholder="https://example.com/login&#10;&#10;Or paste suspicious email/message text…"></textarea><p class="muted">Avoid real passwords, access codes, or private personal data.</p><button class="button" id="scan-button" type="button">Analyze safely</button><div id="scan-results" aria-live="polite"></div></section>
+<aside class="scan-warning"><strong>Triage aid only.</strong> A low score does not prove safety and a high score is not proof of fraud. Confirm the registered domain through a trusted channel. This scanner uses static heuristics only; it does not query threat feeds or inspect websites.</aside>
+<script>
+const scanInput=document.querySelector('#scan-input');
+const scanButton=document.querySelector('#scan-button');
+const scanResults=document.querySelector('#scan-results');
+function esc(value){return String(value).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function render(data){let html='';if(data.urls.length){html+='<div class="scan-summary"><b>'+ (data.score>=50?'High risk':data.score>=25?'Needs review':'Lower signal') +'</b><span>'+data.urls.length+' URL(s) found · highest indicator score '+data.score+'/100</span></div>';for(const url of data.urls){html+='<article class="scan-result"><h3>'+esc(url.level)+' · '+url.score+'/100</h3><code>'+esc(url.url)+'</code>';for(const finding of url.findings){html+='<div class="scan-finding"><strong>'+esc(finding.title)+'</strong><p>'+esc(finding.detail)+'</p></div>'}html+='</article>'}}else{html+='<p class="muted">No URLs detected.</p>'}for(const flag of data.message_flags){html+='<article class="scan-result"><h3>'+esc(flag.title)+'</h3><p>'+esc(flag.detail)+'</p></article>'}if(data.emails.length){html+='<article class="scan-result"><h3>Email addresses found</h3><p>'+data.emails.map(esc).join(' · ')+'</p></article>'}if(!html){html='<p class="muted">No notable indicators found by these checks.</p>'}scanResults.innerHTML=html}
+scanButton.addEventListener('click',async()=>{if(!scanInput.value.trim()){scanResults.innerHTML='<p class="muted">Paste a URL or message to begin.</p>';return}scanButton.disabled=true;try{const response=await fetch('{{ url_for("analyze_message") }}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:scanInput.value})});const data=await response.json();if(!response.ok)throw Error(data.error||'Analysis failed');render(data)}catch(error){scanResults.textContent=error.message}finally{scanButton.disabled=false}});
+</script>
+{% endblock %}
